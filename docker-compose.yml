@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: cupidonet-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+      # - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql  # opcional
+    networks: [cupidonet]
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: cupidonet-php
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_NAME: ${MYSQL_DATABASE}
+      DB_USER: ${MYSQL_USER}
+      DB_PASS: ${MYSQL_PASSWORD}
+      PHP_MEMORY_LIMIT: 256M
+    volumes:
+      - ./public:/var/www/html/public
+      - ./src:/var/www/html/src
+    depends_on: [db]
+    networks: [cupidonet]
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    container_name: cupidonet-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./public:/var/www/html/public:ro
+      - ./src:/var/www/html/src:ro
+    depends_on: [php]
+    networks: [cupidonet]
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: cupidonet-pma
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_USER: ${MYSQL_USER}
+      PMA_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "8081:80"
+    depends_on: [db]
+    networks: [cupidonet]
+
+volumes:
+  dbdata:
+
+networks:
+  cupidonet:
+    driver: bridge
