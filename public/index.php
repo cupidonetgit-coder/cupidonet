@@ -1,17 +1,10 @@
-<?php
-// public/index.php
-session_start();
-$user = $_SESSION['user'] ?? null;
-$cartTotal = 0.00;
-$categories = ["All Category","Electronics","Fashion","Shoes","Sports","Home","Books"];
-?>
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
+  <title>Cybercupido — Conoce gente con tus mismos gustos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tienda • Página genérica</title>
-  <meta name="description" content="Landing genérica para tienda: menú, hero, banners y buscador.">
+  <meta name="description" content="Landing genérica con topbar, buscador, menú, hero y banners.">
   <style>
     :root{
       --bg:#f7f7f8; --card:#fff; --text:#1f2328; --muted:#6b7280; --line:#e5e7eb;
@@ -21,19 +14,20 @@ $categories = ["All Category","Electronics","Fashion","Shoes","Sports","Home","B
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
     a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
     .wrap{max-width:1180px;margin:0 auto;padding:0 16px}
 
     /* Topbar */
     .topbar{background:#111827;color:#e5e7eb;font-size:13px}
-    .topbar .row{display:flex;align-items:center;justify-content:space-between;padding:6px 0}
+    .topbar .row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;gap:12px}
     .topbar a{color:#e5e7eb;opacity:.9;margin-right:14px}
     .topbar a:hover{opacity:1}
     .social a{margin:0 6px}
 
-    /* Header middle (contacto + buscador) */
+    /* Header middle (contacto + buscador + carrito) */
     header{background:var(--card);border-bottom:1px solid var(--line)}
     .head{display:grid;grid-template-columns:1fr 2fr 1fr;gap:16px;align-items:center;padding:14px 0}
-    .contact{display:flex;gap:18px;align-items:center;color:var(--muted);font-size:14px}
+    .contact{display:flex;gap:18px;align-items:center;color:var(--muted);font-size:14px;flex-wrap:wrap}
     .contact .item{display:flex;gap:8px;align-items:center}
     .logo{font-weight:800;font-size:24px;letter-spacing:1px}
     .search{display:flex;gap:0}
@@ -55,9 +49,9 @@ $categories = ["All Category","Electronics","Fashion","Shoes","Sports","Home","B
     .hero{position:relative;border-radius:16px;overflow:hidden;margin:18px 0;box-shadow:var(--shadow)}
     .hero .img{aspect-ratio: 16/6; background:#ddd url('https://picsum.photos/1600/600?random=13') center/cover no-repeat;}
     .hero .txt{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#fff;
-      background:linear-gradient(90deg, rgba(15,23,42,.55), rgba(15,23,42,.25));}
+      background:linear-gradient(90deg, rgba(15,23,42,.55), rgba(15,23,42,.25));padding:18px}
     .hero h1{font-size:clamp(24px,4.8vw,56px);margin:4px 0 8px;text-shadow:0 6px 18px rgba(0,0,0,.35)}
-    .hero p{margin:0 0 10px;font-size:clamp(12px,1.6vw,16px);letter-spacing:.4px;opacity:.95}
+    .hero p{margin:0 0 12px;font-size:clamp(12px,1.6vw,16px);letter-spacing:.4px;opacity:.95}
     .btn{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#111827;border:1px solid #fff;padding:12px 16px;border-radius:12px;font-weight:700;cursor:pointer}
     .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
     .btn:hover{filter:brightness(.96)}
@@ -94,18 +88,14 @@ $categories = ["All Category","Electronics","Fashion","Shoes","Sports","Home","B
           <a href="#">Checkout</a>
           <a href="#">Dashboard</a>
         </div>
-        <div class="social">
+        <div class="social" aria-label="Redes sociales">
           <a href="#" aria-label="Facebook">Fb</a>
           <a href="#" aria-label="Twitter">Tw</a>
           <a href="#" aria-label="LinkedIn">In</a>
           <a href="#" aria-label="RSS">Rss</a>
         </div>
         <div>
-          <?php if ($user): ?>
-            Hola, <strong><?=htmlspecialchars($user['display_name']??$user['email'])?></strong> · <a href="/logout.php">Logout</a>
-          <?php else: ?>
-            <a href="/login.php">Login</a> · <a href="/register.php">Register</a>
-          <?php endif; ?>
+          <a href="#">Login</a> · <a href="#">Register</a>
         </div>
       </div>
     </div>
@@ -114,34 +104,38 @@ $categories = ["All Category","Electronics","Fashion","Shoes","Sports","Home","B
   <!-- HEADER -->
   <header>
     <div class="wrap head">
-      <div class="contact">
+      <div class="contact" aria-label="Datos de contacto">
         <div class="item">📞 <span>+57 300 000 0000</span></div>
-        <div class="item">✉️ <span>contacto@tutienda.com</span></div>
+        <div class="item">✉️ <span>contacto@tusitio.com</span></div>
       </div>
 
-      <div class="search" role="search">
+      <div class="search" role="search" aria-label="Buscador">
         <form action="#" method="get" style="display:flex;flex:1">
           <select name="cat" aria-label="Categoría">
-            <?php foreach($categories as $i=>$c): ?>
-              <option value="<?= $i ?>"><?= htmlspecialchars($c) ?></option>
-            <?php endforeach; ?>
+            <option>All Category</option>
+            <option>Electronics</option>
+            <option>Fashion</option>
+            <option>Shoes</option>
+            <option>Sports</option>
+            <option>Home</option>
+            <option>Books</option>
           </select>
           <input type="text" name="q" placeholder="Search for product" aria-label="Buscar">
           <button type="submit" aria-label="Buscar">🔍</button>
         </form>
       </div>
 
-      <div class="cart">
+      <div class="cart" aria-label="Carrito">
         <div>🛒</div>
         <div>
-          <div><strong>$ <?= number_format($cartTotal,2) ?></strong></div>
+          <div><strong>$ 0.00</strong></div>
           <div class="pill">0 items</div>
         </div>
       </div>
     </div>
 
     <div class="wrap">
-      <div class="menu">
+      <div class="menu" role="navigation" aria-label="Menú principal">
         <div class="logo">LOGO</div>
         <a class="active" href="#">HOME</a>
         <a href="#">SHOP</a>
@@ -156,13 +150,13 @@ $categories = ["All Category","Electronics","Fashion","Shoes","Sports","Home","B
 
   <!-- HERO -->
   <main class="wrap">
-    <section class="hero">
-      <div class="img" role="img" aria-label="Banner principal"></div>
+    <section class="hero" aria-label="Banner principal">
+      <div class="img" role="img" aria-label="Imagen de cabecera"></div>
       <div class="txt">
         <div>
           <p>FREE SHIPPING ON ORDERS OVER $100!</p>
           <h1>HOT NEW RANGE<br>IN STOCK!</h1>
-          <button class="btn primary">Shop Now</button>
+          <a class="btn primary" href="#">Shop Now</a>
         </div>
       </div>
     </section>
@@ -170,7 +164,7 @@ $categories = ["All Category","Electronics","Fashion","Shoes","Sports","Home","B
     <!-- BANNERS -->
     <section class="grid3" aria-label="Categorías destacadas">
       <article class="tile">
-        <div class="img" style="background-image:url('https://picsum.photos/800/500?random=1')"></div>
+        <div class="img" style="background-image:url('https://picsum.photos/800/500?random=1')" aria-hidden="true"></div>
         <span class="badge">Of season sale</span>
         <div class="cap">
           <h3>WINTER JACKETS</h3>
@@ -179,7 +173,7 @@ $categories = ["All Category","Electronics","Fashion","Shoes","Sports","Home","B
       </article>
 
       <article class="tile">
-        <div class="img" style="background-image:url('https://picsum.photos/800/500?random=2')"></div>
+        <div class="img" style="background-image:url('https://picsum.photos/800/500?random=2')" aria-hidden="true"></div>
         <span class="badge">New arrivals</span>
         <div class="cap">
           <h3>RUNNING SHOES</h3>
@@ -188,7 +182,7 @@ $categories = ["All Category","Electronics","Fashion","Shoes","Sports","Home","B
       </article>
 
       <article class="tile">
-        <div class="img" style="background-image:url('https://picsum.photos/800/500?random=3')"></div>
+        <div class="img" style="background-image:url('https://picsum.photos/800/500?random=3')" aria-hidden="true"></div>
         <span class="badge">Essentials</span>
         <div class="cap">
           <h3>MEN'S SHIRTS</h3>
@@ -200,7 +194,7 @@ $categories = ["All Category","Electronics","Fashion","Shoes","Sports","Home","B
 
   <footer>
     <div class="wrap">
-      <small>© <?=date('Y')?> TuTienda. Todos los derechos reservados.</small>
+      <small>© 2025 Cybercupido. Todos los derechos reservados.</small>
     </div>
   </footer>
 </body>
